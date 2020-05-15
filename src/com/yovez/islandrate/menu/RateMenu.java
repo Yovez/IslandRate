@@ -95,7 +95,7 @@ public class RateMenu implements InventoryHolder, Listener {
 					"§2[IslandRate] §4WARNING: §cAn error occured when opening " + player.getName() + "'s Rate Menu.",
 					"§2[IslandRate] §4Error: §cRate Menu's Inventory title cannot be longer than 32 characters.",
 					"§2[IslandRate] §cPlease adjust the Title via the config.yml file to be no longer than 32 characters." });
-			return plugin.getMessage("menu.title", null, player, 0, 0).substring(0, 32);
+			return plugin.getMessage("menu.title", null, player, 0, 0).substring(0, 31);
 		}
 		return ChatColor.translateAlternateColorCodes('&', plugin.getMessage("menu.title", null, player, 0, 0));
 	}

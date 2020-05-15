@@ -76,7 +76,7 @@ public class IslandMenu implements InventoryHolder, Listener {
 					"§2[IslandRate] §4WARNING: §cAn error occured when opening " + player.getName() + "'s Island Menu.",
 					"§2[IslandRate] §4Error: §cIsland Menu's Inventory title cannot be longer than 32 characters.",
 					"§2[IslandRate] §cPlease adjust the Title via the config.yml file to be no longer than 32 characters." });
-			return plugin.getMessage("island_menu.title", null, player, 0, 0).substring(0, 32);
+			return plugin.getMessage("island_menu.title", null, player, 0, 0).substring(0, 31);
 		}
 		return ChatColor.translateAlternateColorCodes('&', plugin.getMessage("island_menu.title", player, null, 0, 0));
 	}

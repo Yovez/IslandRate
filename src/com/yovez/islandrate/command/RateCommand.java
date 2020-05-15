@@ -176,9 +176,9 @@ public class RateCommand implements CommandExecutor {
 						return true;
 					}
 					plugin.reloadConfig();
-					plugin.getMessages().reloadConfig();
-					plugin.getOptOut().reloadConfig();
-					plugin.getStorage().reloadConfig();
+					plugin.getMessages().loadConfig();
+					plugin.getOptOut().loadConfig();
+					plugin.getStorage().loadConfig();
 					setupPrefix();
 					p.sendMessage("§aSuccessfully Reloaded IslandRate Configs!");
 					plugin.getMySQL();
