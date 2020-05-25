@@ -1,6 +1,6 @@
+bin/
 *.class
 .classpath
 .project
 .gitattributes
 *.class
-bin/*
