@@ -3,4 +3,4 @@
 .project
 .gitattributes
 *.class
-bin\*
+bin/*
