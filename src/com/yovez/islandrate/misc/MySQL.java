@@ -61,31 +61,6 @@ public class MySQL {
 		}
 	}
 
-	public void convertFromFile() throws SQLException, ClassNotFoundException {
-		Connection conn = getConnection();
-		for (OfflinePlayer op : Bukkit.getServer().getOfflinePlayers()) {
-			YovezConfig c = new YovezConfig(op.getUniqueId().toString());
-			for (String key : c.getConfig().getKeys(false)) {
-				int rating = c.getConfig().getInt(key);
-				OfflinePlayer v = Bukkit.getOfflinePlayer(UUID.fromString(key));
-				PreparedStatement ps = conn
-						.prepareStatement("REPLACE INTO island_owners(player_uuid, total_ratings) VALUES (?,?);");
-				ps.setString(1, op.getUniqueId().toString());
-				ps.setInt(2, IslandRateAPI.getInstance().getTotalRatings(op) + rating);
-				PreparedStatement psr = conn.prepareStatement(
-						"REPLACE INTO island_ratings(rater_uuid, player_uuid, rating) VALUES (?,?,?);");
-				psr.setString(1, v.getUniqueId().toString());
-				psr.setString(2, op.getUniqueId().toString());
-				psr.setInt(3, rating);
-				ps.executeUpdate();
-				psr.executeUpdate();
-				ps.close();
-				psr.close();
-				connection.close();
-			}
-		}
-	}
-
 	public FileConfiguration getConfig() {
 		return plugin.getStorage().getConfig();
 	}
@@ -178,7 +153,8 @@ public class MySQL {
 
 	public Connection getConnection() {
 		try {
-			openConnection(storageType);
+			if (connection == null && connection.isClosed())
+				openConnection(storageType);
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		} catch (SQLException e) {

@@ -154,31 +154,15 @@ public class RateCommand implements CommandExecutor {
 					p.sendMessage(getMessage("total-ratings", p, null, 0, 0));
 					return true;
 				}
-				if (args[0].equalsIgnoreCase("migrate")) {
-					if (!p.hasPermission("islandrate.migrate")) {
-						p.setDisplayName(noPermission);
-						return true;
-					}
-					try {
-						plugin.getMySQL().convertFromFile();
-					} catch (SQLException | ClassNotFoundException e) {
-						e.printStackTrace();
-						p.sendMessage("§cMigrated from file storage to MySQL/SQLite storage unsuccessfully :("
-								+ " Please contact the Developer!");
-					} finally {
-						p.sendMessage("§aMigrated from file storage to MySQL/SQLite storage successfully!");
-					}
-					return true;
-				}
 				if (args[0].equalsIgnoreCase("reload")) {
 					if (!p.hasPermission("islandrate.reload")) {
 						p.sendMessage(noPermission);
 						return true;
 					}
 					plugin.reloadConfig();
-					plugin.getMessages().loadConfig();
-					plugin.getOptOut().loadConfig();
-					plugin.getStorage().loadConfig();
+					plugin.getMessages().reloadConfig();
+					plugin.getOptOut().reloadConfig();
+					plugin.getStorage().reloadConfig();
 					setupPrefix();
 					p.sendMessage("§aSuccessfully Reloaded IslandRate Configs!");
 					plugin.getMySQL();

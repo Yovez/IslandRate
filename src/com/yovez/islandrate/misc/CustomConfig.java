@@ -2,56 +2,82 @@ package com.yovez.islandrate.misc;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.UnsupportedEncodingException;
+import java.util.logging.Level;
 
-import org.bukkit.configuration.InvalidConfigurationException;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-
-import com.yovez.islandrate.IslandRate;
+import org.bukkit.plugin.Plugin;
 
 public class CustomConfig {
 
-	private final String path;
-	private final String name;
-	private final IslandRate core;
-	private FileConfiguration config;
-	private File file;
+	private YamlConfiguration customConfig;
+	private File customConfigFile;
+	private Plugin plugin;
+	private String configName;
+	private String path;
+	private boolean isResource;
 
-	public CustomConfig(IslandRate core, String path, String name) {
-		this.core = core;
+	public CustomConfig(Plugin plugin, String configName, boolean isResource) {
+		this.plugin = plugin;
+		this.configName = configName;
+		this.isResource = isResource;
+		path = "";
+	}
+
+	public CustomConfig(Plugin plugin, String configName, String path) {
+		this.plugin = plugin;
+		this.configName = configName;
 		this.path = path;
-		this.name = name;
+		isResource = false;
 	}
 
-	public void loadConfig() {
-		file = new File(path, name + ".yml");
-		if (!file.exists()) {
-			file.getParentFile().mkdirs();
-			if (core.getResource(name + ".yml") != null)
-				core.saveResource(name + ".yml", false);
+	public void reloadConfig() {
+		if (customConfigFile == null) {
+			customConfigFile = new File(plugin.getDataFolder() + "/" + path, configName + ".yml");
 		}
-		config = new YamlConfiguration();
-		try {
-			config.load(file);
-		} catch (IOException | InvalidConfigurationException e) {
-			e.printStackTrace();
+		customConfig = YamlConfiguration.loadConfiguration(customConfigFile);
+		if (isResource == true) {
+			Reader defConfigStream = null;
+			try {
+				defConfigStream = new InputStreamReader(plugin.getResource(configName + ".yml"), "UTF8");
+			} catch (UnsupportedEncodingException e) {
+				e.printStackTrace();
+			}
+			if (defConfigStream != null) {
+				YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(defConfigStream);
+				customConfig.setDefaults(defConfig);
+			}
 		}
 	}
 
-	public FileConfiguration getConfig() {
-		if (config == null)
-			loadConfig();
-		return config;
+	public YamlConfiguration getConfig() {
+		if (customConfig == null) {
+			reloadConfig();
+		}
+		return customConfig;
 	}
 
 	public void saveConfig() {
-		if (config == null)
-			loadConfig();
 		try {
-			config.save(file);
-		} catch (IOException e) {
-			e.printStackTrace();
+			getConfig().save(customConfigFile);
+		} catch (IOException ex) {
+			plugin.getLogger().log(Level.SEVERE, "Could not save config to " + customConfigFile, ex);
 		}
+	}
+
+	public void saveDefaultConfig() {
+		if (customConfigFile == null) {
+			customConfigFile = new File(plugin.getDataFolder() + "/" + path, configName + ".yml");
+		}
+		if (!customConfigFile.exists()) {
+			plugin.saveResource(configName + ".yml", false);
+		}
+	}
+
+	public File getCustomConfigFile() {
+		return customConfigFile;
 	}
 
 }

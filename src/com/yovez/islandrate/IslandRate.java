@@ -41,7 +41,6 @@ import world.bentobox.bentobox.managers.IslandsManager;
 public class IslandRate extends JavaPlugin {
 
 	private MySQL mysql;
-	private BentoBox bentobox;
 	private IslandsManager askyblock;
 	private IslandRateAPI api;
 	private Map<UUID, Long> cooldown;
@@ -52,6 +51,8 @@ public class IslandRate extends JavaPlugin {
 	private Map<Integer, UUID> topRated;
 	private int totalRatings;
 	private CustomConfig messages, optOut, storage;
+	private IRASkyBlock irA;
+	private IRBentoBox irB;
 
 	private static IslandRate plugin;
 
@@ -60,18 +61,28 @@ public class IslandRate extends JavaPlugin {
 		plugin = this;
 		saveDefaultConfig();
 		messages = new CustomConfig(this, getDataFolder().getAbsolutePath(), "messages");
-		messages.loadConfig();
+		messages.reloadConfig();
 		optOut = new CustomConfig(this, getDataFolder().getAbsolutePath(), "opt-out");
-		optOut.loadConfig();
+		optOut.reloadConfig();
 		storage = new CustomConfig(this, getDataFolder().getAbsolutePath(), "storage");
-		storage.loadConfig();
-		bentobox = BentoBox.getInstance();
-		askyblock = bentobox.getIslands();
+		storage.reloadConfig();
 		api = IslandRateAPI.getInstance();
 		mysql = MySQL.getInstance();
 		getCommand("rate").setExecutor(new RateCommand(this));
 		if (Bukkit.getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")) {
 			new Placeholders(this);
+		}
+		if (Bukkit.getServer().getPluginManager().isPluginEnabled("ASkyBlock")) {
+			irA = new IRASkyBlock();
+		}
+		if (Bukkit.getServer().getPluginManager().isPluginEnabled("BentoBox")) {
+			irB = new IRBentoBox();
+		}
+		if (irA == null && irB == null) {
+			getPluginLoader().disablePlugin(this);
+			getLogger().warning("No dependent plugin found, disabling IslandRate because it won't work.");
+			getLogger().warning("IslandRate requires ASkyBlock    OR    BentoBox");
+			return;
 		}
 		Bukkit.getServer().getPluginManager().registerEvents(new RateMenu(this), this);
 		Bukkit.getServer().getPluginManager().registerEvents(new TopMenu(this), this);
@@ -124,6 +135,14 @@ public class IslandRate extends JavaPlugin {
 		meta.setLore(getConvertedLore(path, op));
 		item.setItemMeta(meta);
 		return item;
+	}
+
+	public IRASkyBlock getASkyBlock() {
+		return irA;
+	}
+
+	public IRBentoBox getBentoBox() {
+		return irB;
 	}
 
 	public List<String> getConvertedLore(String path, OfflinePlayer op) {
@@ -301,10 +320,6 @@ public class IslandRate extends JavaPlugin {
 			if (getConfig().getBoolean("logging.rate-island", false) == true)
 				Bukkit.getConsoleSender().sendMessage("§2[IslandRate] §eLOG§f: " + p.getName() + " rated "
 						+ op.getName() + "'s Island " + rating + ".");
-	}
-
-	public BentoBox getBentoBox() {
-		return bentobox;
 	}
 
 	public IslandsManager getAskyblock() {
